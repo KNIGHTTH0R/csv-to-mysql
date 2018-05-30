@@ -5,9 +5,9 @@
 [![Minimum PHP Version](https://img.shields.io/packagist/php-v/logikos/csv-to-mysql.svg)](https://php.net/)
 [![Software License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/logikostech/util/master/LICENSE)
 
-# Logikos\Csv\CsvToMysql\[LoadDataInFile]
+# Logikos\Csv\CsvToMysql\ [LoadDataInFile]
 
-Constructs the LOAD DATA INFILE MySQL Query.
+Constructs the `LOAD DATA INFILE` MySQL Query.
 
 ## Installation
 

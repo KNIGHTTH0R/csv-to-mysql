@@ -45,10 +45,23 @@ class CsvToMysqlTest extends TestCase {
 
   public function testDefaults() {
     $ld = new LoadDataInFile();
-    $this->assertSame(',',  $ld->getDelimiter());
-    $this->assertSame('"',  $ld->getEnclosure());
-    $this->assertSame('\\', $ld->getEscape());
-    $this->assertSame(0,    $ld->getIgnoreLines());
+    $this->assertSame(',',   $ld->getDelimiter());
+    $this->assertSame('"',   $ld->getEnclosure());
+    $this->assertSame('\\',  $ld->getEscape());
+    $this->assertSame('\\n', $ld->getEOL());
+    $this->assertSame(0,     $ld->getIgnoreLines());
+  }
+
+  public function testSetAndGetTableName() {
+    $ld = new LoadDataInFile();
+    $ld->setTableName(self::DB_NAME_AND_TABLE);
+    $this->assertSame(self::DB_NAME_AND_TABLE, $ld->getTableName());
+  }
+
+  public function testSetAndGetEOL() {
+    $ld = new LoadDataInFile();
+    $ld->setEOL(";");
+    $this->assertSame(";", $ld->getEOL());
   }
 
   public function testSetAndGetCsvFile() {
@@ -67,19 +80,20 @@ class CsvToMysqlTest extends TestCase {
 
   public function testSQL() {
     $file = $this->csvFile();
-    $sql  = "
-      LOAD DATA LOCAL INFILE {$file}
-      INTO TABLE ".self::DB_NAME_AND_TABLE."
-      FIELDS TERMINATED BY ','
-      OPTIONALLY ENCLOSED BY '\"'
-      ESCAPED BY '\\\\'
-      LINES TERMINATED BY '\\n'
-      IGNORE 2 LINES
-    ";
+
     $ld = new LoadDataInFile();
+    $ld->setCsvFile($file);
+    $ld->setTableName(self::DB_NAME_AND_TABLE);
     $ld->setIgnoreLines(2);
+
+    $expectedSql  = "
+      LOAD DATA LOCAL INFILE {$file} INTO TABLE ".self::DB_NAME_AND_TABLE."
+      FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' ESCAPED BY '\\\\'
+      LINES TERMINATED BY '\\n' IGNORE 2 LINES
+    ";
+
     $this->assertSame(
-        $this->normalizeWhitespace($sql),
+        $this->normalizeWhitespace($expectedSql),
         $this->normalizeWhitespace($ld->getQuery())
     );
   }

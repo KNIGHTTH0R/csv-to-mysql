@@ -9,6 +9,7 @@
 logs/
 *.log
 error_log
+nohup.out
 
 # composer
 /vendor/

@@ -71,11 +71,49 @@ class CsvToMysqlTest extends TestCase {
     $this->assertSame($csvFile, $ld->getCsvFile());
   }
 
-  public function testCsvFileMustBeReadable() {
-    $csvFile = realpath(__DIR__.'/this-file-does-not-exist.csv');
-    $this->expectException(\Exception::class);
+  public function testColumnMap() {
     $ld = new LoadDataInFile();
-    $ld->setCsvFile($csvFile);
+    $map = ['firstname', 'lastname', null, null, 'age'];
+    $ld->setColMap($map);
+    $expected = 'firstname = @col1, lastname = @col2, age = @col5';
+    $this->assertEquals(
+        $this->normalizeWhitespace($expected),
+        $this->normalizeWhitespace($ld->getSetExpression())
+    );
+    $this->assertEquals(
+        ['@col1', '@col2', '@col3', '@col4', '@col5'],
+        $ld->getColVars()
+    );
+    $this->assertEquals($map, $ld->getColMap());
+  }
+
+  public function testStaticColumns() {
+    $ld = new LoadDataInFile();
+    $binds = [
+        'request_id' => 23,
+        'cdate' => '2018-06-12'
+    ];
+    $ld->SetColumnBinds($binds);
+    $this->assertSame($binds, $ld->getColumnBinds());
+    $this->assertEquals(
+        $this->normalizeWhitespace("request_id = :request_id, cdate = :cdate"),
+        $this->normalizeWhitespace($ld->getSetExpression())
+    );
+    $this->assertEquals(
+        [':request_id'=>23, ':cdate'=>'2018-06-12'],
+        $ld->getBinds()
+    );
+  }
+
+  public function testGetSetExpressionIncludesColMapAndColBinds() {
+    $ld = new LoadDataInFile();
+    $ld->setColMap(['firstname']);
+    $ld->setColumnBinds(['request_id'=>23]);
+    $expected = "firstname = @col1, request_id = :request_id";
+    $this->assertEquals(
+        $this->normalizeWhitespace($expected),
+        $this->normalizeWhitespace($ld->getSetExpression())
+    );
   }
 
   public function testSQL() {
@@ -84,12 +122,25 @@ class CsvToMysqlTest extends TestCase {
     $ld = new LoadDataInFile();
     $ld->setCsvFile($file);
     $ld->setTableName(self::DB_NAME_AND_TABLE);
-    $ld->setIgnoreLines(2);
+    $ld->setIgnoreLines(3);
+    $ld->setColMap([
+        'firstname',
+        'lastname',
+        null,
+        null,
+        'age'
+    ]);
+    $ld->setColumnBinds([
+        'request_id'=>23, 'cdate' => '2018-06-12'
+    ]);
 
     $expectedSql  = "
       LOAD DATA LOCAL INFILE {$file} INTO TABLE ".self::DB_NAME_AND_TABLE."
       FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' ESCAPED BY '\\\\'
-      LINES TERMINATED BY '\\n' IGNORE 2 LINES
+      LINES TERMINATED BY '\\n' IGNORE 3 LINES
+      ( @col1, @col2, @col3, @col4, @col5 )
+      SET firstname = @col1, lastname = @col2, age = @col5,
+      request_id = :request_id, cdate = :cdate
     ";
 
     $this->assertSame(

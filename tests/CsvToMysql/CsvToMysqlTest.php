@@ -135,9 +135,13 @@ class CsvToMysqlTest extends TestCase {
     ]);
 
     $expectedSql  = "
-      LOAD DATA LOCAL INFILE {$file} INTO TABLE ".self::DB_NAME_AND_TABLE."
-      FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' ESCAPED BY '\\\\'
-      LINES TERMINATED BY '\\n' IGNORE 3 LINES
+      LOAD DATA LOCAL INFILE '{$file}'
+      INTO TABLE ".self::DB_NAME_AND_TABLE."
+      FIELDS TERMINATED BY ','
+      OPTIONALLY ENCLOSED BY '\"'
+      ESCAPED BY '\\\\'
+      LINES TERMINATED BY '\\n'
+      IGNORE 3 LINES
       ( @col1, @col2, @col3, @col4, @col5 )
       SET firstname = @col1, lastname = @col2, age = @col5,
       request_id = :request_id, cdate = :cdate

@@ -43,7 +43,7 @@ class LoadDataInFile {
 
   public function getQuery() {
     $sql  = "
-      LOAD DATA LOCAL INFILE {$this->getCsvFile()}
+      LOAD DATA LOCAL INFILE '{$this->getCsvFile()}'
       INTO TABLE {$this->getTableName()}
       FIELDS TERMINATED BY '{$this->getDelimiter()}'
       OPTIONALLY ENCLOSED BY '{$this->getEnclosure()}'

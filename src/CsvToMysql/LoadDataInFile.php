@@ -64,7 +64,7 @@ class LoadDataInFile {
 
   public function getColVars() {
     $vars = [];
-    for ($i=1; $i<=count($this->columnMap); $i++)
+    for ($i=1, $count=count($this->columnMap); $i<=$count; $i++)
       array_push($vars, "@col{$i}");
     return $vars;
   }

@@ -26,7 +26,9 @@
     }
   },
   "scripts": {
-    "test": "vendor/bin/phpunit",
-    "phpstan": "vendor/bin/phpstan analyse src --level=7"
+    "test": [
+      "vendor/bin/phpunit",
+      "vendor/bin/phpstan analyse src --level=7"
+    ]
   }
 }

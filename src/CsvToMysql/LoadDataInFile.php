@@ -71,10 +71,13 @@ class LoadDataInFile {
 
   public function getSetExpression() {
     $expressions = [];
-    if ($this->columnMap) array_push($expressions, $this->getColMapExpression());
-    if ($this->columnBinds) array_push($expressions, $this->getBoundSetExpression());
+    if ($this->hasColumnMap())   array_push($expressions, $this->getColMapExpression());
+    if ($this->hasColumnBinds()) array_push($expressions, $this->getBoundSetExpression());
     return $this->arrayToStringList($expressions);
   }
+
+  protected function hasColumnMap()   { return !empty($this->columnMap); }
+  protected function hasColumnBinds() { return !empty($this->columnBinds); }
 
   protected function getColMapExpression() {
     $pieces = [];
